@@ -21,7 +21,7 @@ for path in files:
         print("Muons per event (first 5):", n_muons_sample.tolist())
         print("Muon pt values, event 0:", sample["Muon_pt"][0].tolist())
 
-        # enough muons to form a pair?
+        # to form pair
         pts = tree["Muon_pt"].array(library="ak")
         n_mu = ak.num(pts)
 
@@ -29,3 +29,4 @@ for path in files:
         print("Events with 0 muons:", int(ak.sum(n_mu == 0)))
         print("Events with 1 muon:", int(ak.sum(n_mu == 1)))
         print("Events with 2+ muons:", int(ak.sum(n_mu >= 2)))
+
