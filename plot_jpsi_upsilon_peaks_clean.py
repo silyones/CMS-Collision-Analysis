@@ -21,7 +21,7 @@ plt.close()
 
 # --- Upsilon region (known mass ~9.46 GeV) ---
 plt.figure(figsize=(8, 6))
-plt.hist(masses, bins=200, range=(8.5, 10.5))
+plt.hist(masses, bins=40, range=(8.5, 10.5))
 plt.axvline(9.46, color="red", linestyle="--", label="Upsilon (9.46 GeV)")
 plt.xlabel("Dimuon invariant mass (GeV)")
 plt.ylabel("Number of muon pairs")
