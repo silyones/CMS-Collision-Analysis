@@ -64,7 +64,7 @@ MET_phi = arrs["MET_phi"][selection]
 event_number = 100
 
 muon_pt = float(good_pt[event_number, 0])
-muon_phi = float(good_phi[event_number])
+muon_phi = float(good_phi[event_number, 0])
 
 met_pt = float(MET_pt[event_number])
 met_phi = float(MET_phi[event_number])
@@ -112,33 +112,26 @@ plt.figure(figsize=(9, 9))
 
 ax = plt.gca()
 
-# Muon vector
-
 ax.arrow(
-    0,
-    0,
-    muon_px,
-    muon_py,
+    0, 0,
+    muon_px, muon_py,
     width=0.5,
     head_width=3,
     head_length=5,
     length_includes_head=True,
+    color="royalblue",
     label="Muon"
 )
 
-
-# Missing momentum / neutrino candidate
-
 ax.arrow(
-    0,
-    0,
-    met_px,
-    met_py,
+    0, 0,
+    met_px, met_py,
     width=0.5,
     head_width=3,
     head_length=5,
     length_includes_head=True,
-    label="Missing transverse momentum"
+    color="crimson",
+    label="Missing transverse momentum (ν candidate)"
 )
 
 
