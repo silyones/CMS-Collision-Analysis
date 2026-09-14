@@ -1,15 +1,19 @@
 import os
+
 import numpy as np
 import uproot
 import awkward as ak
 import matplotlib.pyplot as plt
+
 
 files = [
     "opendata/raw/01AB9889-63BA-4171-9842-85AC4E0987DE.root",
     "opendata/raw/04935F99-9E92-4919-89C2-38670059FBDA.root",
 ]
 
+
 all_MT = []
+
 
 for path in files:
 
@@ -32,6 +36,7 @@ for path in files:
         )
 
         # 1. Select good, isolated, high-pt muons
+
         good = (
             arrs["Muon_tightId"]
             & (arrs["Muon_pfRelIso04_all"] < 0.15)
@@ -41,8 +46,13 @@ for path in files:
         good_pt = arrs["Muon_pt"][good]
         good_phi = arrs["Muon_phi"][good]
 
-        # 2. Keep events with at least one good muon
-        keep = ak.num(good_pt) >= 1
+        # 2. Keep events with exactly one good muon
+        #    and MET > 25 GeV
+
+        keep = (
+            (ak.num(good_pt) == 1)
+            & (arrs["MET_pt"] > 25)
+        )
 
         good_pt = good_pt[keep]
         good_phi = good_phi[keep]
@@ -50,16 +60,13 @@ for path in files:
         MET_pt = arrs["MET_pt"][keep]
         MET_phi = arrs["MET_phi"][keep]
 
-        # 3. Take the highest-pt good muon
-        order = ak.argsort(good_pt, ascending=False)
-
-        good_pt = good_pt[order]
-        good_phi = good_phi[order]
+        # 3. Take the good muon
 
         muon_pt = good_pt[:, 0]
         muon_phi = good_phi[:, 0]
 
         # 4. Calculate Δφ between muon and MET
+
         delta_phi = np.abs(muon_phi - MET_phi)
 
         delta_phi = np.where(
@@ -69,17 +76,22 @@ for path in files:
         )
 
         # 5. Calculate transverse mass
+
         MT = np.sqrt(
-            2 * muon_pt * MET_pt * (1 - np.cos(delta_phi))
+            2 * muon_pt * MET_pt *
+            (1 - np.cos(delta_phi))
         )
 
-        # Convert to normal NumPy array
+        # Convert to NumPy
+
         MT = ak.to_numpy(MT)
 
         # Remove invalid values
+
         MT = MT[np.isfinite(MT)]
 
         print("Selected events:", len(MT))
+
         print(
             "MT range: {:.2f} to {:.2f} GeV".format(
                 MT.min(),
@@ -88,14 +100,19 @@ for path in files:
         )
 
         # Save this file's MT values
+
         all_MT.append(MT)
 
 
+# ==========================================
 # Combine both ROOT files
+# ==========================================
+
 all_MT = np.concatenate(all_MT)
 
 print("\n==============================")
 print("TOTAL EVENTS:", len(all_MT))
+
 print(
     "Overall MT range: {:.2f} to {:.2f} GeV".format(
         all_MT.min(),
@@ -103,13 +120,17 @@ print(
     )
 )
 
-# Save the values
+
+# ==========================================
+# Save MT values
+# ==========================================
+
 np.save("transverse_mass.npy", all_MT)
 
 
-# --------------------------------
+# ==========================================
 # Make histogram
-# --------------------------------
+# ==========================================
 
 plt.figure(figsize=(10, 6))
 
@@ -118,12 +139,34 @@ plt.hist(
     bins=100,
     range=(0, 200)
 )
-out_dir = "fig/result"
-os.makedirs(out_dir, exist_ok=True)
 
 plt.xlabel("Transverse mass MT (GeV)")
 plt.ylabel("Number of events")
-plt.title("Muon + Missing Transverse Momentum: Transverse Mass")
-plt.legend()
-plt.savefig(os.path.join(out_dir, "upsilon_peak_clean.png"), dpi=150)
+
+plt.title(
+    "Muon + Missing Transverse Momentum: "
+    "Transverse Mass"
+)
+
+plt.grid(alpha=0.3)
+
+plt.tight_layout()
+
+
+# ==========================================
+# Save figure
+# ==========================================
+
+out_dir = "fig/result"
+
+os.makedirs(out_dir, exist_ok=True)
+
+plt.savefig(
+    os.path.join(out_dir, "transverse_mass.png"),
+    dpi=150
+)
+
 plt.close()
+
+print("\nPlot saved to:")
+print(os.path.join(out_dir, "transverse_mass.png"))
