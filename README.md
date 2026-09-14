@@ -35,7 +35,7 @@ The data is publicly available through the [CERN Open Data Portal](https://opend
 
 The analysis begins with reconstructed muons.
 
-For events containing at least two muons, the two leading-$p_T$ muons are selected and required to have opposite charge:
+For events containing at least two muons, the two leading $p_T$ muons are selected and required to have opposite charge:
 
 $$
 q_1 q_2 < 0
