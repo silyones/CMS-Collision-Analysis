@@ -20,7 +20,8 @@ where the neutrino is inferred through missing transverse momentum.
 
 ## Data
 
-The analysis uses real CMS Open Data stored in ROOT format. Two CMS event samples containing approximately 1 million collision events in total were analyzed. The ROOT files contain reconstructed physics objects including muons and missing transverse momentum. The raw ROOT files are not included in the repository because of their large size.
+The analysis uses real CMS Open Data stored in ROOT format. Two CMS event samples containing approximately 1 million collision events in total were analyzed. The ROOT files contain reconstructed physics objects including muons and missing transverse momentum.
+The data is publicly available through the [CERN Open Data Portal](https://opendata.cern.ch/).
 
 ## Tools
 
