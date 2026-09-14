@@ -1,3 +1,4 @@
+import numpy as np
 import uproot
 import awkward as ak
 
@@ -7,15 +8,16 @@ files = [
 ]
 
 for path in files:
-    print(f"\n=== {path} ===")
+
+    print(f"{path}")
 
     with uproot.open(path) as f:
+
         tree = f["Events"]
 
         arrs = tree.arrays(
             [
                 "Muon_pt",
-                "Muon_eta",
                 "Muon_phi",
                 "Muon_tightId",
                 "Muon_pfRelIso04_all",
@@ -25,29 +27,62 @@ for path in files:
             library="ak",
         )
 
-        # Select good, isolated muons
+        # 1. Select good, isolated, high-pt muons
+
         good = (
             arrs["Muon_tightId"]
             & (arrs["Muon_pfRelIso04_all"] < 0.15)
             & (arrs["Muon_pt"] > 25)
         )
 
-        good_muons = arrs["Muon_pt"][good]
+        good_pt = arrs["Muon_pt"][good]
+        good_phi = arrs["Muon_phi"][good]
 
-        # Count good muons in each event
-        n_good = ak.num(good_muons)
+        # 2. Keep events with at least one good muon
 
-        event_selection = (
-            n_good >= 1
-            & (arrs["MET_pt"] > 25)
+        keep = ak.num(good_pt) >= 1
+
+        good_pt = good_pt[keep]
+        good_phi = good_phi[keep]
+
+        MET_pt = arrs["MET_pt"][keep]
+        MET_phi = arrs["MET_phi"][keep]
+
+        # 3. Take highest-pt good muon
+
+        order = ak.argsort(good_pt, ascending=False)
+
+        good_pt = good_pt[order]
+        good_phi = good_phi[order]
+
+        muon_pt = good_pt[:, 0]
+        muon_phi = good_phi[:, 0]
+
+        # 4. Calculate angle between muon and MET
+
+        delta_phi = np.abs(muon_phi - MET_phi)
+
+        # Keep Δφ between 0 and π
+        delta_phi = np.where(
+            delta_phi > np.pi,
+            2 * np.pi - delta_phi,
+            delta_phi
         )
 
-        print("Events with good muon + MET > 25 GeV:", int(ak.sum(event_selection)))
+        # 5. Calculate transverse mass
 
-        print("Total events:", len(n_good))
-        print("Events with 0 good muons:", int(ak.sum(n_good == 0)))
-        print("Events with 1 good muon:", int(ak.sum(n_good == 1)))
-        print("Events with 2+ good muons:", int(ak.sum(n_good >= 2)))
+        MT = np.sqrt(
+            2 * muon_pt * MET_pt * (1 - np.cos(delta_phi))
+        )
 
-        print("First 10 MET values:")
-        print(arrs["MET_pt"][:10].tolist())
+        print("Selected events:", len(MT))
+
+        print("First 20 MT values:")
+        print(MT[:20].tolist())
+
+        print(
+            "MT range: {:.2f} to {:.2f} GeV".format(
+                float(ak.min(MT)),
+                float(ak.max(MT))
+            )
+        )
