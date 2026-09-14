@@ -19,6 +19,8 @@ for path in files:
                 "Muon_phi",
                 "Muon_tightId",
                 "Muon_pfRelIso04_all",
+                "MET_pt",
+                "MET_phi",
             ],
             library="ak",
         )
@@ -27,6 +29,7 @@ for path in files:
         good = (
             arrs["Muon_tightId"]
             & (arrs["Muon_pfRelIso04_all"] < 0.15)
+            & (arrs["Muon_pt"] > 25)
         )
 
         good_muons = arrs["Muon_pt"][good]
@@ -34,7 +37,17 @@ for path in files:
         # Count good muons in each event
         n_good = ak.num(good_muons)
 
+        event_selection = (
+            n_good >= 1
+            & (arrs["MET_pt"] > 25)
+        )
+
+        print("Events with good muon + MET > 25 GeV:", int(ak.sum(event_selection)))
+
         print("Total events:", len(n_good))
         print("Events with 0 good muons:", int(ak.sum(n_good == 0)))
         print("Events with 1 good muon:", int(ak.sum(n_good == 1)))
         print("Events with 2+ good muons:", int(ak.sum(n_good >= 2)))
+
+        print("First 10 MET values:")
+        print(arrs["MET_pt"][:10].tolist())
