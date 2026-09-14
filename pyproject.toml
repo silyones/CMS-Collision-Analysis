@@ -1,7 +1,7 @@
 [project]
 name = "CMS Collision Analysis"
 version = "0.1.0"
-description = "Exploring real CMS Open Data to reconstruct particle-physics signatures including J/ψ, Υ, Z → μ⁺μ⁻ and W → μν using Python, ROOT, Awkward Array and invariant/transverse-mass techniques"
+description = "Exploring real CMS Open Data to reconstruct particle-physics signatures including J/ψ, Υ, Z → μ⁺μ⁻ and W → μν using Python, Awkward Array and invariant/transverse-mass techniques"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
